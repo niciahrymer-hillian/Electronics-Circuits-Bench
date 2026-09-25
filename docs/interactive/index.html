@@ -1,9 +1,679 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Electronics-Circuits-Bench — Tour</title>
-<style>body{margin:0;font-family:-apple-system,sans-serif;background:#0d0d12;color:#e6e6e6}
-header{padding:18px 24px;border-bottom:1px solid #ffffff14}main{display:grid;grid-template-columns:1fr 1fr;min-height:60vh}
-.lesson,.practice{padding:24px}.lesson{border-right:1px solid #ffffff14}h1,h2{color:#64748B}
-textarea{width:100%;min-height:240px;background:#0000005c;color:#e6e6e6;border:1px solid #ffffff1a;border-radius:8px;padding:12px;font-family:ui-monospace,monospace}</style></head>
-<body><header><h1>Electronics-Circuits-Bench — Interactive Tour (TODO)</h1><p>4-lesson split-panel tour scaffold + Check Your Understanding quiz. See docs/LESSON_PLAN.md.</p></header>
-<main><section class="lesson"><h2>Lesson 1 — TODO</h2><p>Concept + diagram on the left.</p></section>
-<section class="practice"><h3>Practice (TODO)</h3><textarea>// TODO starter code</textarea></section></main></body></html>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Electronics &amp; Circuits Bench &mdash; Interactive Tour</title>
+<style>
+  :root { --bg:#0e1116; --accent:#94a3b8; --accent-deep:#64748B; --panel:#0000002e;
+          --text:#e6e6e6; --muted:#9aa0a6; --good:#4ade80; --bad:#f87171; --warn:#fbbf24; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  header{padding:18px 24px;border-bottom:1px solid #ffffff14}
+  header h1{margin:0;font-size:20px;color:var(--accent)}
+  header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  header .persist-note{margin-top:4px;font-size:11px;color:var(--muted);opacity:.8}
+  .badge{display:inline-block;background:var(--accent-deep);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;padding:12px 24px;border-bottom:1px solid #ffffff14}
+  .pill{font-size:12px;padding:4px 10px;border:1px solid #ffffff22;border-radius:999px;color:var(--muted);cursor:pointer;background:transparent}
+  .pill.active{background:var(--accent);color:#0e1116;font-weight:600;border-color:var(--accent)}
+  .pill.done{border-color:var(--good);color:var(--good)}
+  .pill.tool{border-style:dashed}
+  main{display:grid;grid-template-columns:1fr 1fr;min-height:60vh}
+  @media (max-width:880px){main{grid-template-columns:1fr}.lesson{border-right:none!important;border-bottom:1px solid #ffffff14}}
+  .lesson,.practice{padding:22px 24px}
+  .lesson{border-right:1px solid #ffffff14}
+  .lesson h2{color:var(--accent);margin-top:0;font-size:18px}
+  .lesson ul{padding-left:18px}.lesson li{margin:6px 0}
+  .trap{border-left:3px solid var(--warn);background:#fbbf2410;padding:10px 12px;border-radius:4px;margin:12px 0;font-size:14px}
+  .trap b{color:var(--warn)}
+  .worked{border-left:3px solid var(--accent-deep);background:#ffffff08;padding:10px 12px;border-radius:4px;margin:12px 0;font-size:14px}
+  figure{margin:14px 0}figcaption{color:var(--muted);font-size:12px;margin-top:6px}
+  .practice h3{margin-top:0;color:var(--accent);font-size:16px}
+  .nav{display:flex;gap:10px;align-items:center;padding:14px 24px;border-top:1px solid #ffffff14}
+  button{font:inherit}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
+  button.ghost:disabled{opacity:.35;cursor:not-allowed}
+  .counter{color:var(--muted);font-size:13px;margin-left:auto}
+  /* Quick Check + quiz + pop quiz share one option/feedback system so they read as one product. */
+  .qc{margin-top:16px;border-top:1px solid #ffffff14;padding-top:14px}
+  .qc h4{margin:0 0 8px;font-size:14px;color:var(--accent)}
+  .opt{all:unset;display:flex;align-items:center;gap:8px;padding:8px 10px;margin:4px 0;border:1px solid #ffffff1a;border-radius:8px;cursor:pointer;font-size:14px}
+  .opt:hover{border-color:var(--accent)}
+  .opt.correct{border-color:var(--good);background:#4ade8018}
+  .opt.wrong{border-color:var(--bad);background:#f8717118}
+  .opt[disabled]{cursor:default}
+  .explain{display:none;margin-top:8px;font-size:13px;color:var(--muted);border-left:2px solid var(--accent-deep);padding-left:10px}
+  .links{margin-top:14px;font-size:13px}
+  .links a{color:var(--accent);display:inline-block;margin:3px 0}
+  .links .kind{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-right:6px}
+  .video-card{display:flex;gap:10px;align-items:center;border:1px solid #ffffff1a;border-radius:8px;padding:8px;text-decoration:none;color:var(--text);margin-top:6px}
+  .video-card:hover{border-color:var(--accent)}
+  .video-card-thumb{width:96px;height:54px;border-radius:4px;background-size:cover;background-position:center;position:relative;flex-shrink:0}
+  .video-card-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;text-shadow:0 0 6px #000}
+  .video-card-info b{display:block;font-size:13px}
+  .video-card-info span{color:var(--muted);font-size:12px}
+  table.cheat{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+  table.cheat td,table.cheat th{border:1px solid #ffffff14;padding:6px 8px;text-align:left}
+  table.cheat th{color:var(--accent)}
+  code{background:#ffffff12;padding:1px 5px;border-radius:3px;font-family:ui-monospace,monospace;font-size:13px}
+  .quiz-wrap{padding:22px 24px;border-top:1px solid #ffffff14}
+  .q{margin-bottom:18px}.q p{font-weight:600;margin:0 0 6px}
+  #score{font-weight:700;color:var(--accent)}
+  /* ── Flashcards ── */
+  .flash-stage{display:flex;justify-content:center;padding:18px 0;perspective:1200px}
+  .flash-card{width:min(420px,90%);height:190px;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .45s}
+  .flash-card.flipped{transform:rotateY(180deg)}
+  .flash-face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid #ffffff22;border-radius:12px;
+              display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;font-size:16px}
+  .flash-front{background:#ffffff08;color:var(--text);font-weight:700}
+  .flash-back{background:var(--accent-deep);color:#fff;transform:rotateY(180deg);font-size:14px;font-weight:400}
+  .flash-controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:8px}
+  /* ── Match game ── */
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .match-col{display:flex;flex-direction:column;gap:8px}
+  .match-btn{all:unset;padding:10px 12px;border:1px solid #ffffff1a;border-radius:8px;cursor:pointer;font-size:13px;text-align:left}
+  .match-btn:hover{border-color:var(--accent)}
+  .match-btn.sel{border-color:var(--accent);background:#94a3b818}
+  .match-btn.matched{border-color:var(--good);background:#4ade8018;opacity:.55;cursor:default}
+  .match-btn.wrong{border-color:var(--bad);background:#f8717118}
+  /* ── Simulation ── */
+  .sim-panel{border:1px solid #ffffff1a;border-radius:8px;overflow:hidden;margin-top:10px}
+  .sim-frame{width:100%;height:560px;border:0;background:#fff}
+</style></head>
+<body>
+<header>
+  <h1>Electronics &amp; Circuits Bench <span class="badge">Chain K &middot; Hands-on</span></h1>
+  <p>Ohm's law &rarr; the bench &rarr; soldering &rarr; debugging a dead circuit. Emulation-first: every
+     circuit here runs in the browser, and the real-hardware notes tell you what changes on a bench.</p>
+  <p class="persist-note">Progress (quick checks, quiz score, flashcards known) saves in this browser only
+     &mdash; localStorage, not an account. Clearing site data or switching browsers resets it.</p>
+</header>
+
+<div class="pills" id="pills"></div>
+
+<main>
+  <section class="lesson" id="lesson"></section>
+  <section class="practice" id="practice"></section>
+</main>
+
+<div class="nav" id="nav">
+  <button class="ghost" id="prev">&larr; Previous</button>
+  <button class="ghost" id="next">Next &rarr;</button>
+  <span class="counter" id="counter"></span>
+</div>
+
+<div class="quiz-wrap" id="quizWrap" style="display:none">
+  <h3 style="color:var(--accent);margin-top:0">Check Your Understanding</h3>
+  <div id="quiz"></div>
+  <p>Score: <span id="score">0</span> / <span id="total"></span></p>
+</div>
+
+<div class="quiz-wrap" id="toolWrap" style="display:none"></div>
+
+<script>
+/* ────────────────────────────────────────────────────────────────────────────
+   AUTHORED SVG, not generated images (AGENT_TODO Standard 10).
+   Every diagram below is something a learner will copy onto a real bench, so it
+   has to be right: a generated "photo" of a solder joint gets the vibe correct
+   and the geometry wrong, which in a soldering lesson is instruction someone
+   follows with a hot iron.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Four solder-joint cross-sections. Same pad/lead geometry each time so the only
+   thing that changes is the solder shape — that is the whole teaching point. */
+function joint(kind){
+  const shapes = {
+    good:   {d:"M22,52 Q40,18 58,52 Z", fill:"#cbd5e1", label:"Good — concave fillet", color:"var(--good)",
+             note:"Solder wets both pad and lead and curves inward. Shiny."},
+    cold:   {d:"M28,52 Q40,26 52,52 Z M34,30 a10,9 0 1,0 12,0 Z", fill:"#94a3b8", label:"Cold joint — ball, not fillet", color:"var(--bad)",
+             note:"Dull, rounded, resting on the pad instead of bonding to it."},
+    bridge: {d:"M22,52 Q40,26 58,52 Z M58,52 Q76,26 94,52 Z M50,44 h30 v8 h-30 Z", fill:"#cbd5e1", label:"Bridge — two pads joined", color:"var(--bad)",
+             note:"Too much solder, or the iron dragged between pads."},
+    dry:    {d:"M30,52 L40,40 L50,52 Z", fill:"#cbd5e1", label:"Insufficient — pad not covered", color:"var(--warn)",
+             note:"Not enough solder; the pad edge is still bare."}
+  }[kind];
+  // The label lives in HTML, not inside the SVG: SVG <text> does not wrap, so a long label is
+  // silently clipped at the viewBox edge — which is how "Insufficient — pad not covered" became
+  // "Insufficient — pad not c". HTML wraps, and screen readers get it either way via aria-label.
+  return `<figure style="margin:0;flex:1 1 200px;min-width:190px">
+    <svg viewBox="0 0 116 66" width="100%" style="max-width:240px" role="img"
+         aria-label="${shapes.label}. ${shapes.note}">
+      <rect x="8" y="52" width="100" height="7" fill="#475569"/>
+      <rect x="22" y="49" width="36" height="4" fill="#b45309"/>
+      ${kind==='bridge'?'<rect x="64" y="49" width="30" height="4" fill="#b45309"/>':''}
+      <rect x="38" y="10" width="5" height="42" fill="#e2e8f0"/>
+      ${kind==='bridge'?'<rect x="74" y="10" width="5" height="42" fill="#e2e8f0"/>':''}
+      <path d="${shapes.d}" fill="${shapes.fill}" opacity="${kind==='cold'?0.75:1}"/>
+    </svg>
+    <figcaption style="font-size:12px;margin-top:2px">
+      <b style="color:${shapes.color}">${shapes.label}</b><br>
+      <span style="color:var(--muted)">${shapes.note}</span></figcaption>
+  </figure>`;
+}
+
+/* A resistor divider drawn to scale — the numbers in the worked example match it. */
+const dividerSVG = `<svg viewBox="0 0 240 120" width="100%" style="max-width:320px" role="img"
+  aria-label="Resistor divider: 9 volts across a 1k resistor above a 2k resistor, output taken between them at 6 volts">
+  <line x1="40" y1="14" x2="40" y2="34" stroke="#94a3b8" stroke-width="2"/>
+  <rect x="28" y="34" width="24" height="26" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="60" y="52" fill="#e6e6e6" font-size="11">R1 = 1 kΩ</text>
+  <line x1="40" y1="60" x2="40" y2="72" stroke="#94a3b8" stroke-width="2"/>
+  <circle cx="40" cy="72" r="3" fill="#fbbf24"/>
+  <line x1="40" y1="72" x2="150" y2="72" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="155" y="76" fill="#fbbf24" font-size="11">Vout = 6 V</text>
+  <rect x="28" y="72" width="24" height="26" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="60" y="90" fill="#e6e6e6" font-size="11">R2 = 2 kΩ</text>
+  <line x1="40" y1="98" x2="40" y2="110" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="26" y1="110" x2="54" y2="110" stroke="#94a3b8" stroke-width="2"/>
+  <text x="8" y="12" fill="#4ade80" font-size="11">9 V</text>
+</svg>`;
+
+const LESSONS = [
+{
+  short:"Ohm's law",
+  title:"Ohm's law, and the one it hides",
+  body:`<p><code>V = I × R</code> is the whole of it, but the useful skill is reading which of the three
+  a circuit is <i>setting</i> and which it is <i>letting happen</i>.</p>
+  <ul><li>A battery sets <b>V</b>. The resistance decides <b>I</b>.</li>
+  <li>A resistor doesn't "limit current" by magic — it drops voltage, and the current follows.</li>
+  <li>Power matters as much as the trio: <code>P = V × I</code>. A ¼ W resistor passing 30 mA at 9 V
+  is dissipating 0.27 W and will cook.</li></ul>
+  <div class="trap"><b>The trap:</b> people memorise V=IR and still wire an LED straight to 9 V. The LED
+  is not a resistor — it holds roughly a fixed forward voltage (~2 V) and its current runs away.
+  Without a series resistor, <i>I</i> is limited only by whatever the supply can deliver, which is how
+  an LED dies in under a second. A test-writer's favourite distractor is "the LED has high resistance,
+  so it is fine."</div>
+  <figure>${dividerSVG}<figcaption>Worked example, drawn to match the numbers below.</figcaption></figure>
+  <div class="worked"><b>Worked:</b> 9 V across 1 kΩ + 2 kΩ in series. Total R = 3 kΩ, so
+  I = 9/3000 = <b>3 mA</b>. The drop across R2 = 0.003 × 2000 = <b>6 V</b>. That is the divider output —
+  and note it only holds while nothing meaningful draws current from that midpoint.</div>`,
+  practice:`<h3>Practice — before you touch hardware</h3>
+  <ol><li>Open the Falstad simulator (Simulation tab, or the link below) and build the divider above.</li>
+  <li>Change R2 to 8 kΩ. Predict Vout <i>first</i>, then measure it in the sim.</li>
+  <li>Now hang a 1 kΩ "load" off the midpoint and watch Vout sag. That sag is why a divider
+  is a reference, not a power supply.</li></ol>
+  <p style="color:var(--muted)">Predicting before measuring is the habit worth building — it is the
+  difference between debugging and poking.</p>`,
+  quick:{ q:"A 9 V supply feeds a 1 kΩ and a 2 kΩ resistor in series. What is the current?",
+    choices:["3 mA — 9 V ÷ 3 kΩ","9 mA — 9 V ÷ 1 kΩ","4.5 mA — the average of the two","6 mA — from the 6 V drop"],
+    a:0, ex:"Series resistances add, so the circuit sees 3 kΩ. I = V/R = 9/3000 = 3 mA, and that same current flows through both." },
+  links:[
+    {type:"read", label:"Falstad CircuitJS — browser circuit simulator", url:"https://www.falstad.com/circuit/"},
+    {type:"read", label:"SparkFun — Voltage, Current, Resistance and Ohm's Law", url:"https://learn.sparkfun.com/tutorials/voltage-current-resistance-and-ohms-law"}
+  ]
+},
+{
+  short:"The bench",
+  title:"The bench: multimeter and breadboard",
+  body:`<p>Two instruments do most of the work, and both have a failure mode that looks like a broken circuit.</p>
+  <ul><li><b>Voltage</b> is measured <i>across</i> a component — probes in parallel, circuit powered.</li>
+  <li><b>Current</b> is measured <i>through</i> it — the meter goes in series, which means breaking the
+  circuit and putting the meter in the gap.</li>
+  <li><b>Continuity</b> beeps below a few ohms. Use it with the power <b>off</b>.</li></ul>
+  <div class="trap"><b>The trap:</b> leaving the leads in the <code>10A</code> / current jack and then
+  measuring voltage. In current mode the meter is nearly a short circuit — across a supply it blows
+  its fuse at best. Nearly every "dead multimeter" is a blown current fuse from exactly this.</div>
+  <p>Breadboards: the outer rails run the long way, the inner columns run in fives across a central
+  gully. The gully exists so a DIP chip straddles it without shorting its own pins together.</p>
+  <div class="trap"><b>Second trap:</b> some breadboards <i>split</i> the power rails halfway along with
+  no visible marking. Half your board is dead and the wiring looks perfect. Check the rails with
+  continuity before believing anything.</div>`,
+  practice:`<h3>Practice — meter drills</h3>
+  <ol><li>Measure the divider's Vout with the meter in parallel. Note the reading.</li>
+  <li>Now measure current: break the loop and put the meter in series. Notice you had to
+  <i>modify the circuit</i> to do it — that asymmetry is the thing to remember.</li>
+  <li>With power off, continuity-test both power rails end to end. Find out whether yours split.</li></ol>`,
+  quick:{ q:"You want the current through an LED. Where does the meter go?",
+    choices:["In series — break the circuit and insert it","In parallel across the LED, like voltage","Across the battery terminals","Either way; the meter figures it out"],
+    a:0, ex:"Current is measured through a path, so the meter must become part of it. Putting a meter in current mode across a component is close to a short circuit — that is what blows the fuse." },
+  links:[
+    {type:"read", label:"SparkFun — How to Use a Multimeter", url:"https://learn.sparkfun.com/tutorials/how-to-use-a-multimeter"},
+    {type:"read", label:"Adafruit — Guide to Excellent Soldering (tool selection)", url:"https://learn.adafruit.com/adafruit-guide-excellent-soldering"}
+  ]
+},
+{
+  short:"Soldering &amp; flux",
+  title:"Soldering: flux is the lesson",
+  body:`<p>Solder does not stick to oxide, and every metal surface on your bench is oxidised. <b>Flux</b> is
+  the chemical that strips that oxide at soldering temperature so molten solder <i>wets</i> the pad —
+  flows out and bonds — instead of balling up and sitting on it.</p>
+  <ul><li><b>Rosin-cored solder</b> carries flux in its core. That is usually enough for fresh boards.</li>
+  <li><b>Extra flux</b> (pen or paste) is for reworking, drag-soldering, and anything oxidised.</li>
+  <li><b>No-clean</b> leaves a residue that is safe to leave. <b>Water-soluble</b> flux is aggressive and
+  <b>must</b> be washed off — left on, it corrodes the joint it just made.</li>
+  <li><b>Tin the tip</b>: a wetted tip transfers heat; a dry oxidised tip mostly does not, so you hold
+  the iron there longer and lift pads.</li></ul>
+  <div class="trap"><b>The trap:</b> "more heat" is the usual reaction to solder that will not flow, and
+  it is usually the wrong one. Flux burns off in seconds — a tip parked on a joint has already destroyed
+  the flux that was going to make it work, so more time makes it worse. Add flux, not seconds.
+  Most beginner "bad solder" is a flux problem blamed on the iron.</div>
+  <div class="worked"><b>Reading a joint.</b> Same pad and lead in all four — only the solder changes:</div>
+  <figure style="display:flex;gap:14px;flex-wrap:wrap">
+    ${joint('good')}${joint('cold')}${joint('bridge')}${joint('dry')}
+  </figure>
+  <figcaption style="color:var(--muted);font-size:12px">A good joint is concave and shiny. A cold joint is
+  dull and convex — it looks like a droplet resting on the pad because that is what it is.</figcaption>
+  <p style="margin-top:12px"><b>Temperature:</b> ~330–370 °C for leaded, hotter for lead-free.
+  <b>Ventilation:</b> the fumes are vaporised flux, not lead — still, do not breathe them.
+  <b>Hygiene:</b> with leaded solder, wash your hands before eating. Every time.</p>`,
+  practice:`<h3>Practice — joints you can judge</h3>
+  <ol><li>Tin the tip. Wipe it. Tin it again — notice how differently heat transfers.</li>
+  <li>Solder a header pin the wrong way on purpose: touch solder to the <i>iron</i>, then to the pad.
+  You will get a cold joint. Look at it against the diagrams.</li>
+  <li>Now do it properly: heat pad <b>and</b> lead together, feed solder into the joint (not the iron),
+  pull solder away, then the iron. Compare.</li>
+  <li>Make a bridge deliberately, then remove it with flux and braid.</li></ol>
+  <p style="color:var(--muted)">Making the bad joints on purpose is the fastest way to stop making them
+  by accident.</p>`,
+  quick:{ q:"Solder is balling up on the pad instead of flowing out. Best first move?",
+    choices:["Add flux and try again","Hold the iron there longer","Turn the iron up 60 °C","Press harder with the tip"],
+    a:0, ex:"Balling means the surface is not wetting, which is an oxide problem — that is flux's job. More time or heat burns off what flux is left and risks lifting the pad." },
+  links:[
+    {type:"read", label:"SparkFun — How to Solder: Through-Hole Soldering", url:"https://learn.sparkfun.com/tutorials/how-to-solder-through-hole-soldering"},
+    {type:"watch", label:"Collin's Lab: Soldering", url:"https://www.youtube.com/watch?v=QKbJxytERvg", channel:"Adafruit Industries", vid:"QKbJxytERvg"}
+  ]
+},
+{
+  short:"Debugging",
+  title:"Debugging a circuit that does nothing",
+  body:`<p>A dead circuit is rarely a mystery; it is nearly always one of a short list, and the list is
+  worth working in order rather than by intuition.</p>
+  <ul><li><b>Power first.</b> Measure the rail <i>at the component</i>, not at the supply. A supply
+  reading 5 V proves nothing about what reached pin 8.</li>
+  <li><b>Ground second.</b> Continuity from the chip's ground pin back to supply ground. A floating
+  ground produces symptoms that look like anything at all.</li>
+  <li><b>Then orientation.</b> Electrolytic caps, diodes, LEDs and ICs are all directional. A backwards
+  electrolytic can vent.</li>
+  <li><b>Then the joints.</b> Reflow anything dull. A cold joint is an intermittent connection, which is
+  why the fault "comes and goes when I press on it".</li></ul>
+  <div class="trap"><b>The trap:</b> changing two things at once. The circuit starts working and you have
+  learned nothing — including whether one of your changes made something else worse. One change, one
+  measurement, every time.</div>
+  <div class="worked"><b>Worked:</b> LED circuit does nothing. Rail at the LED anode = 9 V. Continuity
+  cathode → ground = beeps. So power and ground are fine and the LED is the suspect: it is in backwards.
+  Three measurements, no guessing, no parts replaced.</div>`,
+  practice:`<h3>Practice — break it on purpose</h3>
+  <ol><li>Build the working divider + LED in the simulator, then in real life if you have a bench.</li>
+  <li>Introduce one fault: reversed LED, missing ground, or a cold joint. Hand it to someone else
+  (or come back tomorrow) and debug it in the order above.</li>
+  <li>Write down which measurement found it. That note is the beginning of your own checklist.</li></ol>`,
+  quick:{ q:"A board works when you press on one corner. Most likely cause?",
+    choices:["A cold or cracked solder joint","The supply is undersized","A resistor drifted out of tolerance","Static damage to the IC"],
+    a:0, ex:"Intermittent-on-pressure is the signature of a mechanically poor joint — flexing the board closes and opens it. Reflow the dull-looking joints." },
+  links:[
+    {type:"read", label:"Raspberry Pi GPIO pinout (40-pin header reference)", url:"https://pinout.xyz"},
+    {type:"read", label:"SparkFun — How to Use a Breadboard", url:"https://learn.sparkfun.com/tutorials/how-to-use-a-breadboard"}
+  ]
+}
+];
+
+const QUIZ = [
+ {q:"A resistor drops 6 V while 3 mA flows through it. What is its value?",
+  o:["2 kΩ","18 kΩ","500 Ω","0.5 kΩ"],c:0,ex:"R = V/I = 6 / 0.003 = 2000 Ω."},
+ {q:"What does flux actually do?",
+  o:["Removes oxide so solder wets the metal","Lowers solder's melting point","Glues the component to the board","Conducts heat from the iron"],c:0,
+  ex:"Solder will not bond to an oxide layer. Flux strips it at temperature so the solder flows out and bonds."},
+ {q:"Which joint is a cold joint?",
+  o:["Dull and rounded, sitting on the pad","Shiny with a concave fillet","Flat and barely visible","Spanning two adjacent pads"],c:0,
+  ex:"Dull and convex means the solder never wetted the pad — it solidified as a droplet resting on it. The last option describes a bridge."},
+ {q:"You measure voltage with the leads still in the 10 A current jack. What happens?",
+  o:["The meter is near a short circuit and blows its fuse","It reads correctly; the jack does not matter","It reads exactly half","The meter switches mode automatically"],c:0,
+  ex:"In current mode the meter is a very low resistance. Across a supply that is a short — hence the fuse."},
+ {q:"Water-soluble flux residue should be…",
+  o:["Washed off — it corrodes the joint if left","Left alone, like no-clean","Heated again to evaporate it","Covered with lacquer"],c:0,
+  ex:"That is the tradeoff for its aggressiveness: it keeps working after the joint is made, so it must be cleaned off."},
+ {q:"An LED wired straight across 9 V with no series resistor…",
+  o:["Draws runaway current and fails almost immediately","Is fine; LEDs self-limit","Glows at reduced brightness","Only fails above 12 V"],c:0,
+  ex:"An LED holds a roughly fixed forward voltage rather than presenting a resistance, so nothing limits the current but the supply."},
+ {q:"Best first measurement on a circuit that does nothing?",
+  o:["The supply rail measured at the component","Resistance of every resistor","Swap the IC for a new one","Re-solder every joint"],c:0,
+  ex:"Confirm power actually arrives where it is needed before suspecting anything downstream. Measuring at the supply does not prove it reached the chip."}
+];
+
+/* Key terms, pulled from the bolded terms across the four lessons above — feeds
+   the flashcard deck and the match game. Not new facts, just the same ones re-surfaced. */
+const KEY_TERMS = [
+  ["Ohm's law", "V = I × R — voltage equals current times resistance."],
+  ["Power (P = V × I)", "The trio isn't just V/I/R — a resistor can be sized right for current and still overheat if its wattage rating is too low."],
+  ["Series resistance", "Resistors in series add: R_total = R1 + R2 + … — the same current flows through all of them."],
+  ["Voltage divider", "Two resistors in series create a midpoint voltage between them; it's a reference, not a power supply, because it sags under load."],
+  ["Forward voltage (LED)", "An LED holds a roughly fixed voltage drop rather than acting as a resistor — with no series resistor, current runs away and it fails almost instantly."],
+  ["Measuring voltage", "Meter probes go in parallel across the component, circuit powered — no need to break anything."],
+  ["Measuring current", "The meter goes in series — you must break the circuit and put the meter in the gap."],
+  ["Continuity mode", "Beeps below a few ohms; always use it with the power off."],
+  ["Current-jack fuse", "Leaving meter leads in the 10A/current jack while measuring voltage puts the meter near a dead short across the supply — this blows the fuse, the most common cause of a 'dead' multimeter."],
+  ["Breadboard gully", "The central gap on a breadboard lets a DIP chip straddle it without shorting its own pins together."],
+  ["Split power rails", "Some breadboards break their long power rail into two unmarked halves — always verify with continuity, not by eye."],
+  ["Flux", "The chemical that strips oxide at soldering temperature so molten solder wets the pad instead of balling up on it."],
+  ["Wetting", "Solder flowing out and bonding to a clean, fluxed surface — a good joint is concave and shiny because it wetted properly."],
+  ["Rosin-core solder", "Solder with flux built into its core — usually enough on fresh, unoxidised boards."],
+  ["Water-soluble flux", "An aggressive flux that must be washed off after soldering, or its residue corrodes the joint it just made."],
+  ["Cold joint", "A dull, convex ball of solder resting on the pad rather than bonded to it — caused by insufficient heat transfer, not fixed by more time with the iron."],
+  ["Tinning the tip", "Coating the iron's tip in fresh solder so it transfers heat efficiently — a dry, oxidised tip barely conducts heat at all."],
+  ["Fault-finding order", "Power at the component, then ground continuity, then component orientation, then joint quality — worked in that order, not by intuition."],
+  ["Floating ground", "A broken or missing ground return — produces symptoms that can look like almost any other fault."],
+  ["One change, one measurement", "Changing two things at once means that even if the circuit starts working, you don't know which change fixed it — or whether the other one made something else worse."]
+];
+
+/* ── localStorage persistence — versioned key, fails silently if storage is unavailable
+   (private browsing, file:// restrictions in some browsers) so the tour still works. ── */
+const STATE_KEY = 'chainK_electronicsCircuitsBench_v1';
+function loadState(){
+  try{ const raw = localStorage.getItem(STATE_KEY); return raw ? JSON.parse(raw) : null; }
+  catch(e){ return null; }
+}
+function saveState(){
+  try{
+    localStorage.setItem(STATE_KEY, JSON.stringify({
+      answered, quizScore: score, quizDone: [...done], fcKnown: [...fcKnown]
+    }));
+  }catch(e){ /* storage unavailable — progress just won't persist this session */ }
+}
+const SAVED = loadState();
+
+/* ── rendering: lessons + final quiz ─────────────────────────────────────────── */
+let idx = 0;
+const answered = SAVED && Array.isArray(SAVED.answered) && SAVED.answered.length === LESSONS.length
+  ? SAVED.answered.slice() : new Array(LESSONS.length).fill(false);
+
+function videoCard(l){
+  return `<a class="video-card" href="${l.url}" target="_blank" rel="noopener">
+    <span class="video-card-thumb" style="background-image:url('https://img.youtube.com/vi/${l.vid}/hqdefault.jpg')">
+      <span class="video-card-play">&#9658;</span></span>
+    <span class="video-card-info"><b>${l.label}</b><span>${l.channel} &middot; opens on YouTube</span></span></a>`;
+}
+
+function renderLinks(links){
+  if(!links || !links.length) return '';
+  const rows = links.map(l => l.type === 'watch'
+    ? videoCard(l)
+    : `<div><span class="kind">${l.type}</span><a href="${l.url}" target="_blank" rel="noopener">${l.label}</a></div>`).join('');
+  return `<div class="links"><h4 style="margin:0 0 6px;font-size:14px;color:var(--accent)">Continue learning</h4>${rows}</div>`;
+}
+
+function renderQuick(i){
+  const q = LESSONS[i].quick;
+  if(!q) return '';
+  const isDone = answered[i];
+  return `<div class="qc"><h4>Quick check</h4><p style="margin:0 0 6px;font-size:14px">${q.q}</p>
+    <div id="qcopts">${q.choices.map((c,ci)=>`<button class="opt ${isDone && ci===q.a?'correct':''}" data-ci="${ci}" ${isDone?'disabled':''}>${c}</button>`).join('')}</div>
+    <div class="explain" id="qcex" style="${isDone?'display:block':''}">${isDone?q.ex:''}</div></div>`;
+}
+
+const TOOLS = ['Flashcards','Match','Pop Quiz','Cheat Sheet','Simulation'];
+function pillsHTML(){
+  const lessonPills = LESSONS.map((l,i)=>
+    `<button class="pill ${i===idx?'active':''} ${answered[i]?'done':''}" data-i="${i}">${i+1}. ${l.short}</button>`).join('');
+  const quizPill = `<button class="pill ${idx===LESSONS.length?'active':''}" data-i="${LESSONS.length}">Quiz</button>`;
+  const toolPills = TOOLS.map((t,ti)=>{
+    const i = LESSONS.length + 1 + ti;
+    return `<button class="pill tool ${i===idx?'active':''}" data-i="${i}">${t}</button>`;
+  }).join('');
+  return lessonPills + quizPill + toolPills;
+}
+
+function render(){
+  document.getElementById('pills').innerHTML = pillsHTML();
+
+  const isQuiz = idx === LESSONS.length;
+  const isTool = idx > LESSONS.length;
+
+  document.querySelector('main').style.display = (isQuiz || isTool) ? 'none' : 'grid';
+  document.getElementById('quizWrap').style.display = isQuiz ? 'block' : 'none';
+  document.getElementById('toolWrap').style.display = isTool ? 'block' : 'none';
+  document.getElementById('nav').style.display = isTool ? 'none' : 'flex';
+
+  if(isTool){ renderTool(idx - LESSONS.length - 1); return; }
+  if(isQuiz){ document.getElementById('counter').textContent = 'Final quiz'; renderQuiz(); syncNav(); return; }
+
+  const L = LESSONS[idx];
+  document.getElementById('lesson').innerHTML =
+    `<h2>${idx+1}. ${L.title}</h2>${L.body}${renderLinks(L.links)}${renderQuick(idx)}`;
+  document.getElementById('practice').innerHTML = L.practice;
+  document.getElementById('counter').textContent = `Lesson ${idx+1} of ${LESSONS.length}`;
+
+  // One button per choice rather than radios: a button can lock itself on first
+  // click, which is what gives immediate single-question feedback.
+  const opts = document.getElementById('qcopts');
+  if(opts) opts.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if(!b || b.disabled) return;
+    const q = LESSONS[idx].quick, pick = +b.dataset.ci;
+    [...opts.children].forEach((el,ci)=>{ el.disabled = true;
+      if(ci===q.a) el.classList.add('correct'); else if(ci===pick) el.classList.add('wrong'); });
+    const ex = document.getElementById('qcex'); ex.textContent = q.ex; ex.style.display='block';
+    answered[idx] = true;   // right or wrong — the point is engagement
+    saveState();
+    syncNav(); render2Pills();
+  });
+  syncNav();
+}
+function render2Pills(){
+  document.querySelectorAll('.pill').forEach((p,i)=>{ if(answered[i]) p.classList.add('done'); });
+}
+function syncNav(){
+  document.getElementById('prev').disabled = idx === 0;
+  const n = document.getElementById('next');
+  const gated = idx < LESSONS.length && !answered[idx];
+  n.disabled = idx > LESSONS.length - 1 || gated;
+  n.textContent = gated ? 'Answer the quick check to continue' : 'Next →';
+}
+
+let score = SAVED && Number.isFinite(SAVED.quizScore) ? SAVED.quizScore : 0;
+let done = new Set(SAVED && Array.isArray(SAVED.quizDone) ? SAVED.quizDone : []);
+
+function renderQuiz(){
+  document.getElementById('total').textContent = QUIZ.length;
+  document.getElementById('quiz').innerHTML = QUIZ.map((it,qi)=>{
+    const isDone = done.has(qi);
+    return `<div class="q"><p>${qi+1}. ${it.q}</p>
+      <div data-q="${qi}">${it.o.map((o,oi)=>`<button class="opt ${isDone && oi===it.c?'correct':''}" data-q="${qi}" data-o="${oi}" ${isDone?'disabled':''}>${o}</button>`).join('')}</div>
+      <div class="explain" id="qex${qi}" style="${isDone?'display:block':''}">${isDone?it.ex:''}</div></div>`;
+  }).join('');
+  document.getElementById('score').textContent = score;
+}
+document.getElementById('quiz').addEventListener('click', e => {
+  const b = e.target.closest('.opt'); if(!b || b.disabled) return;
+  const qi = +b.dataset.q, oi = +b.dataset.o, it = QUIZ[qi];
+  if(done.has(qi)) return; done.add(qi);
+  b.parentElement.querySelectorAll('.opt').forEach((el,i)=>{ el.disabled = true;
+    if(i===it.c) el.classList.add('correct'); else if(i===oi) el.classList.add('wrong'); });
+  const ex = document.getElementById('qex'+qi); ex.textContent = it.ex; ex.style.display='block';
+  if(oi===it.c){ score++; document.getElementById('score').textContent = score; }
+  saveState();
+});
+
+/* ── Tool tabs: Flashcards, Match, Pop Quiz, Cheat Sheet, Simulation ─────────── */
+function shuffled(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
+
+function renderTool(view){
+  if(view===0) return renderFlash();
+  if(view===1) return renderMatch();
+  if(view===2) return renderPop();
+  if(view===3) return renderCheat();
+  if(view===4) return renderSim();
+}
+
+/* Flashcards */
+let fcIdx = 0;
+const fcKnown = new Set(SAVED && Array.isArray(SAVED.fcKnown) ? SAVED.fcKnown : []);
+function renderFlash(){
+  const t = KEY_TERMS[fcIdx];
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Flashcards</h3>
+    <p style="color:var(--muted);font-size:13px">Click a card to flip it. ${fcKnown.size} / ${KEY_TERMS.length} marked known.</p>
+    <div class="flash-stage"><div class="flash-card" id="flashCard">
+      <div class="flash-face flash-front">${t[0]}</div>
+      <div class="flash-face flash-back">${t[1]}</div>
+    </div></div>
+    <div class="flash-controls">
+      <button class="ghost" id="fcPrev">&larr; Prev</button>
+      <span class="counter" style="margin:0 6px">${fcIdx+1} / ${KEY_TERMS.length}</span>
+      <button class="ghost" id="fcKnow">${fcKnown.has(fcIdx) ? '✓ Known' : 'Mark known'}</button>
+      <button class="ghost" id="fcNext">Next &rarr;</button>
+    </div>`;
+  document.getElementById('flashCard').onclick = () => document.getElementById('flashCard').classList.toggle('flipped');
+  document.getElementById('fcPrev').onclick = () => { fcIdx = (fcIdx - 1 + KEY_TERMS.length) % KEY_TERMS.length; renderFlash(); };
+  document.getElementById('fcNext').onclick = () => { fcIdx = (fcIdx + 1) % KEY_TERMS.length; renderFlash(); };
+  document.getElementById('fcKnow').onclick = () => {
+    if(fcKnown.has(fcIdx)) fcKnown.delete(fcIdx); else fcKnown.add(fcIdx);
+    saveState(); renderFlash();
+  };
+}
+
+/* Match game — one shared key per pair (not one per side), so a match is recorded
+   once and can't double-count; the attempt counter updates directly in the wrong
+   handler so it doesn't look stale during the brief highlight-then-reset delay. */
+let matchPairs = [], matchTermOrder = [], matchDefOrder = [], matchSel = null, matchMatched = new Set(), matchAttempts = 0;
+function newMatchRound(){
+  const n = Math.min(8, KEY_TERMS.length);
+  const idxs = shuffled([...Array(KEY_TERMS.length).keys()]).slice(0, n);
+  matchPairs = idxs.map(i => ({ key:i, term:KEY_TERMS[i][0], def:KEY_TERMS[i][1] }));
+  matchTermOrder = shuffled(matchPairs);
+  matchDefOrder = shuffled(matchPairs);
+  matchSel = null; matchMatched = new Set(); matchAttempts = 0;
+}
+function matchBtn(p, side){
+  const isMatched = matchMatched.has(p.key);
+  const isSel = matchSel && matchSel.key === p.key && matchSel.side === side;
+  const label = side === 'term' ? p.term : p.def;
+  return `<button class="match-btn ${isMatched?'matched':''} ${isSel?'sel':''}" data-key="${p.key}" data-side="${side}" ${isMatched?'disabled':''}>${label}</button>`;
+}
+function matchStatusText(){
+  if(matchMatched.size === matchPairs.length) return `Solved in ${matchAttempts} attempts!`;
+  return `Match each term to its definition. Attempts: ${matchAttempts}`;
+}
+function renderMatch(){
+  if(!matchPairs.length) newMatchRound();
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Match</h3>
+    <p style="color:var(--muted);font-size:13px" id="matchStatus">${matchStatusText()}</p>
+    <div class="match-grid">
+      <div class="match-col">${matchTermOrder.map(p => matchBtn(p,'term')).join('')}</div>
+      <div class="match-col">${matchDefOrder.map(p => matchBtn(p,'def')).join('')}</div>
+    </div>
+    <button class="ghost" id="matchNew" style="margin-top:14px">New round</button>`;
+  document.querySelectorAll('.match-btn').forEach(b => b.addEventListener('click', onMatchClick));
+  document.getElementById('matchNew').onclick = () => { newMatchRound(); renderMatch(); };
+}
+function onMatchClick(e){
+  const b = e.currentTarget;
+  const key = +b.dataset.key, side = b.dataset.side;
+  if(matchMatched.has(key)) return;
+  if(!matchSel || matchSel.side === side){ matchSel = { key, side }; renderMatch(); return; }
+  matchAttempts++;
+  if(matchSel.key === key){
+    matchMatched.add(key);   // single key shared by both the term button and the definition button
+    matchSel = null;
+    renderMatch();
+  } else {
+    b.classList.add('wrong');
+    const status = document.getElementById('matchStatus');
+    if(status) status.textContent = `Not quite. Attempts: ${matchAttempts}`;
+    setTimeout(() => { matchSel = null; renderMatch(); }, 500);
+  }
+}
+
+/* Pop quiz — pools every lesson's quick check plus the final quiz, samples 5 at random. */
+function popPool(){
+  const fromLessons = LESSONS.filter(l => l.quick).map(l => ({ q:l.quick.q, opts:l.quick.choices, correct:l.quick.a, ex:l.quick.ex }));
+  const fromQuiz = QUIZ.map(q => ({ q:q.q, opts:q.o, correct:q.c, ex:q.ex }));
+  return [...fromLessons, ...fromQuiz];
+}
+let popSet = [], popIdx = 0, popScore = 0, popDone = false;
+function newPop(){
+  const pool = shuffled(popPool());
+  popSet = pool.slice(0, Math.min(5, pool.length));
+  popIdx = 0; popScore = 0; popDone = false;
+}
+function renderPop(){
+  if(!popSet.length) newPop();
+  if(popDone){
+    document.getElementById('toolWrap').innerHTML = `
+      <h3 style="color:var(--accent);margin-top:0">Pop Quiz</h3>
+      <p>Score: <b>${popScore} / ${popSet.length}</b></p>
+      <button class="ghost" id="popAgain">Try another 5</button>`;
+    document.getElementById('popAgain').onclick = () => { newPop(); renderPop(); };
+    return;
+  }
+  const it = popSet[popIdx];
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Pop Quiz</h3>
+    <p style="color:var(--muted);font-size:13px">Question ${popIdx+1} of ${popSet.length} &middot; Score so far: ${popScore}</p>
+    <div class="qc"><p style="font-weight:600;font-size:14px;margin:0 0 6px">${it.q}</p>
+      <div id="popOpts">${it.opts.map((o,oi)=>`<button class="opt" data-oi="${oi}">${o}</button>`).join('')}</div>
+      <div class="explain" id="popEx"></div></div>
+    <button class="ghost" id="popNext" style="margin-top:12px;display:none">Next &rarr;</button>`;
+  document.getElementById('popOpts').addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if(!b || b.disabled) return;
+    const oi = +b.dataset.oi;
+    [...document.getElementById('popOpts').children].forEach((el,i) => {
+      el.disabled = true;
+      if(i===it.correct) el.classList.add('correct'); else if(i===oi) el.classList.add('wrong');
+    });
+    if(oi === it.correct) popScore++;
+    const ex = document.getElementById('popEx'); ex.textContent = it.ex; ex.style.display = 'block';
+    document.getElementById('popNext').style.display = 'inline-block';
+  });
+  document.getElementById('popNext').onclick = () => {
+    popIdx++;
+    if(popIdx >= popSet.length) popDone = true;
+    renderPop();
+  };
+}
+
+/* Cheat sheet — dense last-minute recap, separate from the lesson bodies. */
+const CHEATSHEET = `
+  <h3 style="color:var(--accent);margin-top:0">Cheat Sheet</h3>
+  <table class="cheat">
+    <tr><th>Concept</th><th>Formula / rule</th></tr>
+    <tr><td>Ohm's law</td><td><code>V = I × R</code></td></tr>
+    <tr><td>Power</td><td><code>P = V × I</code> — check the resistor's wattage rating, not just its ohms</td></tr>
+    <tr><td>Series resistance</td><td>R_total = R1 + R2 + …</td></tr>
+    <tr><td>Voltage divider output</td><td>Vout = Vin × R2 / (R1 + R2) — sags under load</td></tr>
+    <tr><td>LED with no series resistor</td><td>Runaway current, fails almost instantly — LEDs aren't resistors</td></tr>
+    <tr><td>Measuring voltage</td><td>Meter in <b>parallel</b>, circuit powered</td></tr>
+    <tr><td>Measuring current</td><td>Meter in <b>series</b> — break the circuit and insert it</td></tr>
+    <tr><td>Continuity</td><td>Power <b>off</b>, beeps below a few ohms</td></tr>
+    <tr><td>Blown meter fuse</td><td>Usually leads left in the 10A jack while measuring voltage</td></tr>
+    <tr><td>Good solder joint</td><td>Concave, shiny fillet — it wetted the pad</td></tr>
+    <tr><td>Cold joint</td><td>Dull, convex ball — add flux, not more heat or time</td></tr>
+    <tr><td>Water-soluble flux</td><td>Must be washed off, or it corrodes the joint</td></tr>
+    <tr><td>Fault-finding order</td><td>Power at the component &rarr; ground &rarr; orientation &rarr; joints</td></tr>
+    <tr><td>Debugging rule</td><td>One change, one measurement — every time</td></tr>
+    <tr><td>Intermittent fault (press-to-work)</td><td>Almost always a cold/cracked solder joint</td></tr>
+  </table>
+  <p style="color:var(--muted);font-size:12px;margin-top:10px">Full lesson content covers the reasoning
+     behind each row — this page is for last-minute recall, not first-time learning.</p>`;
+function renderCheat(){ document.getElementById('toolWrap').innerHTML = CHEATSHEET; }
+
+/* Simulation — its own tab, not a buried link. Falstad embedded directly, with a
+   fallback open-in-new-tab link above it (some browsers/extensions block the iframe),
+   plus every lesson's guided sim exercise pulled into one place. */
+function renderSim(){
+  const exercises = LESSONS.map((l,i) =>
+    `<div class="worked" style="margin:12px 0">
+       <div style="color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px">From Lesson ${i+1} — ${l.short}</div>
+       ${l.practice}
+     </div>`).join('');
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Simulation Sandbox</h3>
+    <p style="color:var(--muted);font-size:13px">Falstad CircuitJS, embedded below — a full browser circuit
+       simulator. If it doesn't load here (some browsers block third-party iframes),
+       <a href="https://www.falstad.com/circuit/" target="_blank" rel="noopener">open it in a new tab</a>.</p>
+    <div class="sim-panel">
+      <iframe class="sim-frame" src="https://www.falstad.com/circuit/circuitjs.html" loading="lazy" title="Falstad CircuitJS circuit simulator"></iframe>
+    </div>
+    <h4 style="color:var(--accent);margin:18px 0 4px">Guided exercises, one from each lesson</h4>
+    ${exercises}`;
+}
+
+document.getElementById('pills').addEventListener('click', e => {
+  const p = e.target.closest('.pill'); if(!p) return; idx = +p.dataset.i; render();
+});
+document.getElementById('prev').onclick = () => { if(idx>0){ idx--; render(); } };
+document.getElementById('next').onclick = () => { if(idx<LESSONS.length){ idx++; render(); } };
+render();
+</script>
+</body></html>
