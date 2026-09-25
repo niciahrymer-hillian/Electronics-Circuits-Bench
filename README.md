@@ -30,7 +30,22 @@ with an iron in hand.
 |---|---|
 | A modern browser | Chrome, Firefox, Safari, or Edge — the interactive tour is a single HTML file, no install |
 | Python 3.8+ (for the exercises) | Check with `python3 --version` |
-| Nothing else required to start | Real breadboard/multimeter/soldering iron only needed once you move to the hardware appendix — see the [Hardware Buying Guide](#hardware-buying-guide-what-to-look-for--red-flags) below before buying anything |
+| Nothing else required to start | Real breadboard/multimeter/soldering iron only needed once you move to the hardware appendix — see below before buying anything |
+
+## Items Needed
+
+Everything here is covered in the [Hardware Buying Guide](#hardware-buying-guide-what-to-look-for--red-flags)
+below with Budget/Mid/Premium picks and current links — this is just the checklist to gather before you
+start the hardware appendix (Lessons 1–4 alone need nothing but a browser):
+
+- [ ] Breadboard + jumper wires
+- [ ] Component assortment (resistors, capacitors, diodes, transistors, LEDs)
+- [ ] A digital multimeter
+- [ ] A soldering iron
+- [ ] Solder (rosin-core, and ideally a separate flux pen — see Lesson 3)
+- [ ] Wire strippers/cutters + heat-shrink tubing
+- [ ] Perfboard (for the "solder it for real" step in the Build Order)
+- [ ] Safety glasses + a well-ventilated workspace for soldering
 
 ## Quick Start
 
