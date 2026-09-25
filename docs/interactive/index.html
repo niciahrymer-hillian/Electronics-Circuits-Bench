@@ -77,6 +77,21 @@
   /* ── Simulation ── */
   .sim-panel{border:1px solid #ffffff1a;border-radius:8px;overflow:hidden;margin-top:10px}
   .sim-frame{width:100%;height:560px;border:0;background:#fff}
+  /* ── Report card ── */
+  .report-card{border:1px solid #ffffff22;border-radius:10px;padding:20px 22px;max-width:560px}
+  .report-card h4{margin:16px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .report-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #ffffff10;font-size:14px}
+  .report-row .grade{font-weight:700}
+  .grade-A{color:var(--good)} .grade-B{color:#a3e635} .grade-C{color:var(--warn)} .grade-D,.grade-F{color:var(--bad)} .grade-dash{color:var(--muted)}
+  .report-overall{display:flex;align-items:baseline;gap:10px;margin:14px 0}
+  .report-overall .big{font-size:40px;font-weight:800}
+  #printBtn{margin-top:16px}
+  @media print{
+    header .persist-note, .pills, #nav, .report-card #printBtn{display:none!important}
+    body{background:#fff;color:#111}
+    .report-card{border-color:#ccc;max-width:none}
+    .report-row{border-bottom-color:#ddd}
+  }
 </style></head>
 <body>
 <header>
@@ -363,7 +378,8 @@ function loadState(){
 function saveState(){
   try{
     localStorage.setItem(STATE_KEY, JSON.stringify({
-      answered, quizScore: score, quizDone: [...done], fcKnown: [...fcKnown]
+      answered, quizScore: score, quizDone: [...done], fcKnown: [...fcKnown],
+      popLastScore, popLastTotal, popAttemptsCount, matchBestAttempts
     }));
   }catch(e){ /* storage unavailable — progress just won't persist this session */ }
 }
@@ -398,7 +414,7 @@ function renderQuick(i){
     <div class="explain" id="qcex" style="${isDone?'display:block':''}">${isDone?q.ex:''}</div></div>`;
 }
 
-const TOOLS = ['Flashcards','Match','Pop Quiz','Cheat Sheet','Simulation'];
+const TOOLS = ['Flashcards','Match','Pop Quiz','Cheat Sheet','Simulation','Report Card'];
 function pillsHTML(){
   const lessonPills = LESSONS.map((l,i)=>
     `<button class="pill ${i===idx?'active':''} ${answered[i]?'done':''}" data-i="${i}">${i+1}. ${l.short}</button>`).join('');
@@ -493,6 +509,7 @@ function renderTool(view){
   if(view===2) return renderPop();
   if(view===3) return renderCheat();
   if(view===4) return renderSim();
+  if(view===5) return renderReportCard();
 }
 
 /* Flashcards */
@@ -526,6 +543,7 @@ function renderFlash(){
    once and can't double-count; the attempt counter updates directly in the wrong
    handler so it doesn't look stale during the brief highlight-then-reset delay. */
 let matchPairs = [], matchTermOrder = [], matchDefOrder = [], matchSel = null, matchMatched = new Set(), matchAttempts = 0;
+let matchBestAttempts = SAVED && Number.isFinite(SAVED.matchBestAttempts) ? SAVED.matchBestAttempts : null;
 function newMatchRound(){
   const n = Math.min(8, KEY_TERMS.length);
   const idxs = shuffled([...Array(KEY_TERMS.length).keys()]).slice(0, n);
@@ -566,6 +584,10 @@ function onMatchClick(e){
   if(matchSel.key === key){
     matchMatched.add(key);   // single key shared by both the term button and the definition button
     matchSel = null;
+    if(matchMatched.size === matchPairs.length){
+      if(matchBestAttempts === null || matchAttempts < matchBestAttempts) matchBestAttempts = matchAttempts;
+      saveState();
+    }
     renderMatch();
   } else {
     b.classList.add('wrong');
@@ -582,6 +604,9 @@ function popPool(){
   return [...fromLessons, ...fromQuiz];
 }
 let popSet = [], popIdx = 0, popScore = 0, popDone = false;
+let popLastScore = SAVED && Number.isFinite(SAVED.popLastScore) ? SAVED.popLastScore : null;
+let popLastTotal = SAVED && Number.isFinite(SAVED.popLastTotal) ? SAVED.popLastTotal : null;
+let popAttemptsCount = SAVED && Number.isFinite(SAVED.popAttemptsCount) ? SAVED.popAttemptsCount : 0;
 function newPop(){
   const pool = shuffled(popPool());
   popSet = pool.slice(0, Math.min(5, pool.length));
@@ -618,7 +643,11 @@ function renderPop(){
   });
   document.getElementById('popNext').onclick = () => {
     popIdx++;
-    if(popIdx >= popSet.length) popDone = true;
+    if(popIdx >= popSet.length){
+      popDone = true;
+      popLastScore = popScore; popLastTotal = popSet.length; popAttemptsCount++;
+      saveState();
+    }
     renderPop();
   };
 }
@@ -667,6 +696,64 @@ function renderSim(){
     </div>
     <h4 style="color:var(--accent);margin:18px 0 4px">Guided exercises, one from each lesson</h4>
     ${exercises}`;
+}
+
+/* Report Card — aggregates everything saved to localStorage into one summary,
+   with a print-to-PDF button. Only #toolWrap is visible when this tab is active
+   (main and quizWrap are already display:none), so window.print() naturally
+   prints just this content plus whatever @media print doesn't hide. */
+function letterGrade(pct){
+  if(pct === null) return { text:'—', cls:'grade-dash' };
+  if(pct >= 90) return { text:'A', cls:'grade-A' };
+  if(pct >= 80) return { text:'B', cls:'grade-B' };
+  if(pct >= 70) return { text:'C', cls:'grade-C' };
+  if(pct >= 60) return { text:'D', cls:'grade-D' };
+  return { text:'F', cls:'grade-F' };
+}
+function renderReportCard(){
+  const lessonsDone = answered.filter(Boolean).length;
+  const quizPct = QUIZ.length ? Math.round((score / QUIZ.length) * 100) : null;
+  const quizAttempted = done.size > 0;
+  const grade = letterGrade(quizAttempted ? quizPct : null);
+  const overallItems = lessonsDone + (quizAttempted ? 1 : 0);
+  const overallTotal = LESSONS.length + 1;
+  const overallPct = Math.round((overallItems / overallTotal) * 100);
+  const now = new Date();
+
+  document.getElementById('toolWrap').innerHTML = `
+    <div class="report-card">
+      <h3 style="color:var(--accent);margin-top:0">Report Card</h3>
+      <p style="color:var(--muted);font-size:12px;margin-top:-6px">Electronics &amp; Circuits Bench &middot; generated ${now.toLocaleDateString()} ${now.toLocaleTimeString()}</p>
+
+      <div class="report-overall">
+        <span class="big ${grade.cls}">${grade.text}</span>
+        <span style="color:var(--muted);font-size:13px">Final quiz grade${quizAttempted ? '' : ' (not yet taken)'}</span>
+      </div>
+
+      <h4>Lessons</h4>
+      <div class="report-row"><span>Quick checks completed</span><span class="grade">${lessonsDone} / ${LESSONS.length}</span></div>
+
+      <h4>Final Quiz</h4>
+      <div class="report-row"><span>Score</span><span class="grade">${quizAttempted ? `${score} / ${QUIZ.length} (${quizPct}%)` : 'Not attempted'}</span></div>
+
+      <h4>Pop Quiz</h4>
+      <div class="report-row"><span>Most recent 5-question run</span><span class="grade">${popLastScore !== null ? `${popLastScore} / ${popLastTotal}` : 'Not attempted'}</span></div>
+      <div class="report-row"><span>Runs completed</span><span class="grade">${popAttemptsCount}</span></div>
+
+      <h4>Flashcards</h4>
+      <div class="report-row"><span>Terms marked known</span><span class="grade">${fcKnown.size} / ${KEY_TERMS.length}</span></div>
+
+      <h4>Match Game</h4>
+      <div class="report-row"><span>Best round (fewest attempts)</span><span class="grade">${matchBestAttempts !== null ? matchBestAttempts : 'Not completed'}</span></div>
+
+      <h4>Overall</h4>
+      <div class="report-row"><span>Lessons + quiz completed</span><span class="grade">${overallItems} / ${overallTotal} (${overallPct}%)</span></div>
+
+      <button class="ghost" id="printBtn">🖨️ Print / Save as PDF</button>
+      <p style="color:var(--muted);font-size:11px;margin-top:8px">In the print dialog, choose <b>Save as PDF</b> and
+         save it into this project's <code>docs/</code> folder to keep a dated record.</p>
+    </div>`;
+  document.getElementById('printBtn').onclick = () => window.print();
 }
 
 document.getElementById('pills').addEventListener('click', e => {
